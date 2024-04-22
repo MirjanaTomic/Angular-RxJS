@@ -1,17 +1,11 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "projects/**/*"
-  ],
+  "ignorePatterns": ["projects/**/*"],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
-        "project": [
-          "tsconfig.json"
-        ],
+        "project": ["**/tsconfig.json"],
         "createDefaultProgram": true
       },
       "plugins": ["rxjs", "rxjs-angular"],
@@ -37,26 +31,14 @@
             "style": "kebab-case"
           }
         ],
-        "rxjs/no-implicit-any-catch": [
-          "off",
-          { "allowExplicitAny": true }
-        ],
-        "rxjs/no-sharereplay": [
-          "off",
-          { "allowConfig": true }
-        ],
-        "rxjs/no-unbound-methods": [
-          "off"
-        ]
+        "rxjs/no-implicit-any-catch": ["off", { "allowExplicitAny": true }],
+        "rxjs/no-sharereplay": ["off", { "allowConfig": true }],
+        "rxjs/no-unbound-methods": ["off"]
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended"
-      ],
+      "files": ["*.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {}
     }
   ]

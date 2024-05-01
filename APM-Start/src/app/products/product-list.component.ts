@@ -27,18 +27,7 @@ export class ProductListComponent {
   pageTitle = 'Product List';
   errorMessage = '';
 
-  private categorySelectedSubject = new BehaviorSubject<number>(0);
-  categorySelectedAction$ = this.categorySelectedSubject.asObservable();
-
-  products$ = combineLatest([
-    this.productService.productsWithAdd$,
-    this.categorySelectedAction$,
-  ]).pipe(
-    map(([products, selectedCategoryId]) => {
-      return products.filter((product: Product) =>
-        selectedCategoryId ? product.categoryId === selectedCategoryId : true
-      );
-    }),
+  products$ = this.productService.productsWithAdd$.pipe(
     catchError((err) => {
       this.errorMessage = err;
       return EMPTY;
@@ -62,6 +51,6 @@ export class ProductListComponent {
   }
 
   onSelected(categoryId: string): void {
-    this.categorySelectedSubject.next(+categoryId);
+    this.productService.selectedProductChanged(+categoryId);
   }
 }

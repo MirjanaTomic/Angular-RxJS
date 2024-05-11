@@ -13,9 +13,15 @@ export class ProductDetailComponent {
   pageTitle = 'Product Detail';
   private errorMessageSubject = new Subject();
   errorMessage$ = this.errorMessageSubject.asObservable();
-  productSuppliers: Supplier[] | null = null;
 
   product$ = this.productService.selectedProduct$.pipe(
+    catchError((err) => {
+      this.errorMessageSubject.next(err);
+      return EMPTY;
+    })
+  );
+
+  productSuppliers$ = this.productService.selectedProductSuppliers$.pipe(
     catchError((err) => {
       this.errorMessageSubject.next(err);
       return EMPTY;

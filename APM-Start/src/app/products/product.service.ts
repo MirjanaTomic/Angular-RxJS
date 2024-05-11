@@ -16,6 +16,7 @@ import {
 
 import { Product } from './product';
 import { ProductCategoryService } from '../product-categories/product-category.service';
+import { SupplierService } from '../suppliers/supplier.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,7 @@ export class ProductService {
   private suppliersUrl = 'api/suppliers';
 
   products$ = this.http.get<Product[]>(this.productsUrl).pipe(
-    tap((data) => console.log('Products: ', JSON.stringify(data))),
+    // tap((data) => console.log('Products: ', JSON.stringify(data))),
     catchError(this.handleError)
   );
 
@@ -58,6 +59,17 @@ export class ProductService {
     )
   );
 
+  selectedProductSuppliers$ = combineLatest([
+    this.selectedProduct$,
+    this.supplierService.suppliers$,
+  ]).pipe(
+    map(([selectedProduct, suppliers]) =>
+      suppliers.filter((suppler) =>
+        selectedProduct?.supplierIds?.includes(suppler.id)
+      )
+    )
+  );
+
   private productInsertedSubject = new Subject<Product>();
   productInsertedAction$ = this.productInsertedSubject.asObservable();
 
@@ -65,7 +77,6 @@ export class ProductService {
     this.productsWithCategory$,
     this.productInsertedAction$
   ).pipe(
-    tap((data) => console.log(data)),
     scan(
       (acc, value) => (value instanceof Array ? [...value] : [...acc, value]),
       [] as Product[]
@@ -74,7 +85,8 @@ export class ProductService {
 
   constructor(
     private http: HttpClient,
-    private productCategoryService: ProductCategoryService
+    private productCategoryService: ProductCategoryService,
+    private supplierService: SupplierService
   ) {}
 
   addProduct(newProduct?: Product) {

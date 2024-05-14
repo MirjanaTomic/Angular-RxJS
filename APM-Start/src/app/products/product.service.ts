@@ -5,11 +5,15 @@ import {
   BehaviorSubject,
   catchError,
   combineLatest,
+  filter,
+  forkJoin,
   map,
   merge,
   Observable,
+  of,
   scan,
   Subject,
+  switchMap,
   tap,
   throwError,
 } from 'rxjs';
@@ -17,6 +21,7 @@ import {
 import { Product } from './product';
 import { ProductCategoryService } from '../product-categories/product-category.service';
 import { SupplierService } from '../suppliers/supplier.service';
+import { Supplier } from '../suppliers/supplier';
 
 @Injectable({
   providedIn: 'root',
@@ -59,14 +64,34 @@ export class ProductService {
     )
   );
 
-  selectedProductSuppliers$ = combineLatest([
-    this.selectedProduct$,
-    this.supplierService.suppliers$,
-  ]).pipe(
-    map(([selectedProduct, suppliers]) =>
-      suppliers.filter((suppler) =>
-        selectedProduct?.supplierIds?.includes(suppler.id)
-      )
+  // GET IT ALL suppliers for selected product
+  // selectedProductSuppliers$ = combineLatest([
+  //   this.selectedProduct$,
+  //   this.supplierService.suppliers$,
+  // ]).pipe(
+  //   map(([selectedProduct, suppliers]) =>
+  //     suppliers.filter((suppler) =>
+  //       selectedProduct?.supplierIds?.includes(suppler.id)
+  //     )
+  //   )
+  // );
+
+  // JUST IN TIME suppliers for selected product
+  selectedProductSuppliers$ = this.selectedProduct$.pipe(
+    filter((product: Product | undefined) => Boolean(product)),
+    switchMap((selectedProduct) => {
+      if (selectedProduct?.supplierIds) {
+        return forkJoin(
+          selectedProduct.supplierIds.map((supplierId) =>
+            this.http.get<Supplier>(`${this.suppliersUrl}/${supplierId}`)
+          )
+        );
+      } else {
+        return of([]);
+      }
+    }),
+    tap((supplers) =>
+      console.log('product suppliers', JSON.stringify(supplers))
     )
   );
 
